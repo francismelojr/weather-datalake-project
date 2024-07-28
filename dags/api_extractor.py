@@ -37,7 +37,7 @@ def fetch_api():
         data = response.json()
 
         s3 = boto3.client('s3')
-        s3.put_object(Bucket='weather-bucket-data',
+        s3.put_object(Bucket='weather-datalake-bucket',
                       Key=f"landing/{city}-{datetime.now().strftime('%d-%m-%Y-%H-%M-%S')}.json",
                       Body=json.dumps(data))
 def landing_to_bronze():
@@ -46,7 +46,7 @@ def landing_to_bronze():
         .getOrCreate()
 
     s3 = boto3.client('s3')
-    obj = s3.get_object(Bucket='s3://weather-bucket-data/bronze/', Key='data.json')
+    obj = s3.get_object(Bucket='s3://weather-datalake-bucket/bronze/', Key='data.json')
     data = json.loads(obj['Body'].read().decode('utf-8'))
 
     df = spark.createDataFrame(data)
