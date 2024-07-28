@@ -69,4 +69,4 @@ transform_data_task = PythonOperator(
     dag=dag
 )
 
-collect_data_task # >> transform_data_task
+collect_data_task  >> transform_data_task
