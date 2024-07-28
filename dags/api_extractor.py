@@ -2,7 +2,6 @@ from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from pyspark.sql import SparkSession
 from datetime import datetime
-from delta import DeltaTable
 import requests
 import boto3
 import json
@@ -30,7 +29,7 @@ def fetch_api():
     ]
 
     for city in cities:
-        api_key = os.getenv('API_KEY')
+        api_key = os.getenv('WEATHER_API_KEY')
         url = (
             f'http://api.weatherapi.com/v1/current.json?key={api_key}&q={city}&aqi=yes'
         )
@@ -38,7 +37,7 @@ def fetch_api():
         data = response.json()
 
         s3 = boto3.client('s3')
-        s3.put_object(Bucket='your-landing-bucket',
+        s3.put_object(Bucket='s3://weather-bucket-data/landing/',
                     Key=f"{city}-{datetime.now().strftime('%d-%m-%Y-%H-%M-%S')}.json", Body=json.dumps(data))
 
 def landing_to_bronze():
@@ -47,26 +46,28 @@ def landing_to_bronze():
         .getOrCreate()
 
     s3 = boto3.client('s3')
-    obj = s3.get_object(Bucket='your-landing-bucket', Key='data.json')
+    obj = s3.get_object(Bucket='s3://weather-bucket-data/bronze/', Key='data.json')
     data = json.loads(obj['Body'].read().decode('utf-8'))
 
     df = spark.createDataFrame(data)
     delta_table_path = "s3a://your-bronze-bucket/data"
     df.write.format("delta").mode("overwrite").save(delta_table_path)
 
-dag = DAG('etl_pipeline', default_args=default_args, schedule_interval='@daily')
+dag = DAG('etl_pipeline',
+          default_args=default_args,
+          schedule_interval='"0 8 * * *"')
 
 
-collect_data_task = PythonOperator(
+collect_data = PythonOperator(
     task_id='collect_data',
     python_callable=fetch_api,
     dag=dag
 )
 
-transform_data_task = PythonOperator(
+transform_data = PythonOperator(
     task_id='transform_data',
     python_callable=landing_to_bronze,
     dag=dag
 )
 
-collect_data_task  >> transform_data_task
+collect_data  >> transform_data
