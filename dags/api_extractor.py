@@ -37,9 +37,9 @@ def fetch_api():
         data = response.json()
 
         s3 = boto3.client('s3')
-        s3.put_object(Bucket='s3://weather-bucket-data/landing/',
-                    Key=f"{city}-{datetime.now().strftime('%d-%m-%Y-%H-%M-%S')}.json", Body=json.dumps(data))
-
+        s3.put_object(Bucket='weather-bucket-data',
+                      Key=f"landing/{city}-{datetime.now().strftime('%d-%m-%Y-%H-%M-%S')}.json",
+                      Body=json.dumps(data))
 def landing_to_bronze():
     spark = SparkSession.builder \
         .appName("Transform JSON to Delta") \
