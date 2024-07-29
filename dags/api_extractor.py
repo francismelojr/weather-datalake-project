@@ -57,7 +57,7 @@ def landing_to_bronze():
 
 dag = DAG('etl_pipeline',
           default_args=default_args,
-          schedule_interval=ModuleNotFoundError)
+          schedule_interval="0 8 * * *")
 
 
 collect_data = PythonOperator(
