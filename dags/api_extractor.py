@@ -12,7 +12,7 @@ default_args = {
     'owner': 'Francisco Santos',
     'depends_on_past': False,
     'start_date': datetime(2024, 7, 28),
-    'retries': 2,
+    'retries': 0,
 }
 
 def fetch_api():
@@ -57,7 +57,7 @@ def landing_to_bronze():
 
 dag = DAG('etl_pipeline',
           default_args=default_args,
-          schedule_interval="0 8 * * *")
+          schedule_interval=ModuleNotFoundError)
 
 
 collect_data = PythonOperator(
