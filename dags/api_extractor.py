@@ -1,5 +1,6 @@
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
+from airflow.models import Variable
 from pyspark.sql import SparkSession
 from datetime import datetime
 import requests
@@ -28,8 +29,9 @@ def fetch_api():
     'Arlington', 'New Orleans', 'Wichita', 'Cleveland', 'Tampa', 'Bakersfield', 'Aurora', 'Honolulu', 'Anaheim', 'Santa Ana'
     ]
 
+    api_key = Variable.get("weather_api_key")
+
     for city in cities:
-        api_key = os.getenv('WEATHER_API_KEY')
         url = (
             f'http://api.weatherapi.com/v1/current.json?key={api_key}&q={city}&aqi=yes'
         )
