@@ -1,5 +1,7 @@
 .env
 /config
 */__pycache__
-*/logs
 *.json
+/.aws
+*.ipynb
+/logs

@@ -1,4 +1,5 @@
 boto3
 requests
-delta-spark
-pyspark
+deltalake
+pandas
+pyarrow
