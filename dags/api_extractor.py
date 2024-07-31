@@ -129,15 +129,16 @@ def save_history():
     for file in s3.list_objects_v2(Bucket='weather-datalake-bucket', Prefix=destination)['Contents']:
         path = file['Key']
         history_path = path.replace("landing", "history")
-        s3.copy_object(
-            Bucket=bucket,
-            CopySource={'Bucket': bucket, 'Key': path},
-            Key=history_path
-        )
-        s3.delete_object(
-            Bucket=bucket,
-            Key=path
-        )
+        if path.endswith('.json'):
+            s3.copy_object(
+                Bucket=bucket,
+                CopySource={'Bucket': bucket, 'Key': path},
+                Key=history_path
+            )
+            s3.delete_object(
+                Bucket=bucket,
+                Key=path
+            )
 
 
 dag = DAG('etl_pipeline',
