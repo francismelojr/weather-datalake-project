@@ -13,8 +13,28 @@ default_args = {
     'owner': 'Francisco Santos',
     'depends_on_past': False,
     'start_date': datetime(2024, 7, 28),
-    'retries': 0,
+    'retries': 1,
+    "retry_delay": datetime.timedelta(minutes=3)
 }
+
+def copy_to_history():
+    s3 = boto3.client('s3')
+    bucket = 'weather-datalake-bucket'
+    destination = 'landing'
+    for file in s3.list_objects_v2(Bucket='weather-datalake-bucket', Prefix=destination)['Contents']:
+        path = file['Key']
+        history_path = path.replace("landing", "history")
+        if path.endswith('.json'):
+            s3.copy_object(
+                Bucket=bucket,
+                CopySource={'Bucket': bucket, 'Key': path},
+                Key=history_path
+            )
+            s3.delete_object(
+                Bucket=bucket,
+                Key=path
+            )
+
 
 def fetch_api():
     cities = [
@@ -122,29 +142,12 @@ def landing_to_bronze():
                     table, mode='append', storage_options=storage_options)
 
 
-def save_history():
-    s3 = boto3.client('s3')
-    bucket = 'weather-datalake-bucket'
-    destination = 'landing'
-    for file in s3.list_objects_v2(Bucket='weather-datalake-bucket', Prefix=destination)['Contents']:
-        path = file['Key']
-        history_path = path.replace("landing", "history")
-        if path.endswith('.json'):
-            s3.copy_object(
-                Bucket=bucket,
-                CopySource={'Bucket': bucket, 'Key': path},
-                Key=history_path
-            )
-            s3.delete_object(
-                Bucket=bucket,
-                Key=path
-            )
-
-
-dag = DAG('etl_pipeline',
-          default_args=default_args,
-          schedule_interval="0 8 * * *")
-
+dag = DAG(
+    'etl_pipeline',
+    default_args=default_args,
+    schedule_interval="0 8 * * *",
+    catchup=False
+)
 
 collect_data = PythonOperator(
     task_id='collect_data',
@@ -158,10 +161,10 @@ transform_data = PythonOperator(
     dag=dag
 )
 
-copy_to_history = PythonOperator(
-    task_id='copy_to_history',
-    python_callable=save_history,
+save_history = PythonOperator(
+    task_id='save_history',
+    python_callable=copy_to_history,
     dag=dag
 )
 
-collect_data  >> transform_data >> copy_to_history
+save_history >> collect_data  >> transform_data
