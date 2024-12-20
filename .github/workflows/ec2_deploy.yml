@@ -19,7 +19,7 @@ jobs:
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: airflow
+          username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: ./
           target: /home/ubuntu/airflow/
