@@ -23,4 +23,4 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: ./
           target: /home/ubuntu/airflow/
-          recursive: true
+
