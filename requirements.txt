@@ -3,3 +3,4 @@ requests
 deltalake
 pandas
 pyarrow
+dbt-duckdb
