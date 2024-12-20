@@ -150,7 +150,10 @@ dag = DAG(
     catchup=False,
 )
 
-start = DummyOperator(task_id='start')
+start = DummyOperator(
+    task_id='start',
+    dag=dag
+    )
 
 task_save_history = PythonOperator(
     task_id='task_save_history',
@@ -175,7 +178,10 @@ task_landing_to_bronze = PythonOperator(
     },
 )
 
-end = DummyOperator(task_id='end')
+end = DummyOperator(
+    task_id='end',
+    dag=dag
+    )
 
 (
     start
