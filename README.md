@@ -1,7 +1,8 @@
 # Data Lakehouse with Weather Data
+<img src="pictures/architecture.png" alt="architecture" width="950" />
 
 ## Overview
-This project is a data engineering portfolio showcasing the development of a data lakehouse architecture using modern technologies. The pipeline collects weather data from an external API and processes it through a robust data workflow that leverages Apache Airflow, DBT with DuckDB, and other AWS services.
+This project is a data engineering portfolio showcasing the development of a data lakehouse architecture using modern technologies. The pipeline collects weather data from an external API and processes it through a robust data workflow that leverages Apache Airflow, DBT, Motherduck and AWS services.
 
 The objective is to demonstrate best practices in data pipeline orchestration, data modeling, and analytics while maintaining a scalable and reliable infrastructure.
 
@@ -17,7 +18,10 @@ The project employs the following architecture:
 3. **Silver Layer:**
    - Processes and cleanses the raw data into structured fact and dimension tables.
 
-4. **Analytics Layer:**
+4. **Gold Layer:**
+   - Uses refined data from silver in order to deliver valuable information about data.
+
+5. **Analytics Layer:**
    - Enables analytical queries and dashboards for insights.
 
 ## Key Technologies
@@ -65,8 +69,13 @@ This DAG orchestrates the execution of DBT models:
 - Materialized as a table
 - Stores descriptive information about weather locations
 
+## MotherDuck Overview
+<img src="pictures/motherduck.png" alt="motherduck" width="950" />
+
+MotherDuck provides a very interesting interface for querying and analytics notebooks.
+
 ## CI/CD Pipeline
-The project integrates GitHub Actions to automate the deployment process:
+The project integrates GitHub Actions to automate the deployment process to AWS:
 1. Code pushed to the main branch triggers a workflow.
 2. The workflow pushes updated DAGs and DBT models to the AWS EC2 instance.
 3. Airflow and DBT models are refreshed for the latest changes.
